@@ -16,7 +16,10 @@ const extensionMap = {
 const maxDbs = 5;
 const tokensPath = path.resolve("tokens");
 
-function setupFileChangeHandlers() {
+const file = {};
+file.onDidSave = (file) => {};
+
+function setupFileChangeHandlers(configPath) {
   __MONACO_EDITOR__.onDidChangeModelContent((ev) => {
     if (!ev.isFlush) {
       currentFileContentChanged();
@@ -52,10 +55,8 @@ async function saveCurrentFile() {
     });
   });
   selectedFileBtn.removeAttribute("unsaved");
-
-  if (!selectedFile.startsWith("build")) {
-    await runStyleDictionary();
-  }
+  file.onDidSave(selectedFile);
+  return selectedFile;
 }
 
 async function currentFileContentChanged() {
@@ -195,7 +196,7 @@ async function switchToFile(file) {
   window.__MONACO_EDITOR__.setScrollTop(0);
 }
 
-async function populateFileTree() {
+async function populateFileTree(configPath) {
   const files = await asyncGlob("**/*", { fs, nodir: true });
   const fileTreeContainer = document.getElementById("file-tree");
   fileTreeContainer.innerHTML = "";
@@ -211,7 +212,7 @@ async function populateFileTree() {
       const oldCheckedBtn = btns.find((btn) => btn.hasAttribute("checked"));
       if (oldCheckedBtn) {
         if (oldCheckedBtn.hasAttribute("unsaved")) {
-          await saveCurrentFile();
+          await saveCurrentFile(configPath);
         }
         oldCheckedBtn.removeAttribute("checked");
       }
@@ -231,6 +232,7 @@ function changeLang(lang) {
 }
 
 module.exports = {
+  file,
   setupFileChangeHandlers,
   checkFirstFile,
   saveCurrentFile,

@@ -21,10 +21,16 @@ const b = browserify({
   // Perhaps there's a better way to replace imports, but `-r fs:browserify-fs` didn't work
   transform: function (file) {
     return through(function (buf, enc, next) {
+      // browserify-fs works, memfs works as well, your pick :)!
+      // this.push(
+      //   buf
+      //     .toString("utf8")
+      //     .replace(/require\(("|')fs("|')\)/g, "require('browserify-fs')")
+      // );
       this.push(
         buf
           .toString("utf8")
-          .replace(/require\(("|')fs("|')\)/g, "require('browserify-fs')")
+          .replace(/require\(("|')fs("|')\)/g, "require('memfs')")
       );
       next();
     });
