@@ -19,7 +19,7 @@
     "react native",
     "style guide"
   ],
-  "main": "index.js",
+  "main": "browser.js",
   "types": "types/index.d.ts",
   "bin": {
     "style-dictionary": "./bin/style-dictionary"
@@ -32,6 +32,7 @@
     "lib",
     "examples",
     "index.js",
+    "browser.js",
     "LICENSE",
     "NOTICE",
     "types"
