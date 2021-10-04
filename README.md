@@ -10,6 +10,8 @@
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/amzn/style-dictionary/Test?style=flat-square)](https://github.com/amzn/style-dictionary/actions/workflows/test.yml)
 [![downloads](https://img.shields.io/npm/dm/style-dictionary.svg?style=flat-square)](https://www.npmjs.com/package/style-dictionary)
 
+> This is a fork of style-dictionary, because it patches style-dictionary to work in the browser. See Browser section for more info.
+
 # Style Dictionary
 > *Style once, use everywhere.*
 
@@ -54,6 +56,12 @@ If you want to install it with yarn:
 $ yarn add style-dictionary --dev
 ```
 
+If you want to install patch that can be used in the browser (see Browser section for more info):
+
+```bash
+$ npm install browser-style-dictionary
+```
+
 ## Usage
 ### CLI
 ```bash
@@ -95,6 +103,75 @@ const StyleDictionary = require('style-dictionary').extend({
 
 StyleDictionary.buildAllPlatforms();
 ```
+
+## Browser
+
+This fork of style-dictionary is made to work in the browser. There's essentially three things for that to be possible
+
+### Done already
+
+* Patch style-dictionary to exclude things that only work in Node (e.g. `process.on('exit')`), calls to `fs-extra` etc.
+
+* Prepublish step to replace calls to `fs.readFileSync(__dirname + '/templates/...')` with the inlined content of those template files
+
+You can import the browser entrypoint:
+
+```js
+import StyleDictionary from 'browser-style-dictionary/browser.js';
+```
+
+or if you want a prebundled ESM version of the format helpers:
+
+```js
+import StyleDictionary from 'browser-style-dictionary/format-helpers.esm.js';
+```
+
+### Do yourself
+
+* Run Browserify or your own bundler of choice (e.g. [Rollup](https://rollupjs.org/)) to make this runnable in the browser. It is needed to replace Node exclusives with browser-compatible alternatives, like `fs`, `path`, `process`, etc.
+
+You will also need to transform CommonJS to ES Modules format.
+
+There's an example for Rollup in the [playground repository](https://github.com/divriots/style-dictionary-playground/blob/main/rollup.config.js).
+
+If you're looking for a browserify utility to do the same thing, checkout the playground's old [browserify branch](https://github.com/divriots/style-dictionary-playground/tree/browserify). However, we recommend reusing the bundler you bundle the rest of your application with, rather than creating multiple separate bundles.
+
+For supporting JSON5, add this to your app:
+
+```html
+<script src="https://unpkg.com/json5@^2.0.0/dist/index.min.js"></script>
+```
+
+> Note: your file-system shim needs to support synchronous calls, we recommend [memfs](https://www.npmjs.com/package/memfs).
+> Using `glob` is possible too. Make sure to pass the virtual FS to glob calls e.g. `glob('**/*', { fs: virtualFS })`.
+
+### Playground
+
+For reference, checkout the [playground repository](https://github.com/divriots/style-dictionary-playground), it shows how you can run style-dictionary in the browser by doing those 2 final steps.
+
+Look into the playground for a full example, but in short:
+
+```js
+// patched style-dictionary, we assume your bundler transforms to ESM, meaning you can import like ESM
+import StyleDictionary from "browser-style-dictionary/browser.js";
+import path from "path";
+let myStyleDictionary;
+const configPath = path.resolve("sd.config.json");
+
+function runStyleDictionary() {
+  console.log("Running style-dictionary...");
+  myStyleDictionary = StyleDictionary.extend(configPath);
+  myStyleDictionary.buildAllPlatforms();
+}
+runStyleDictionary();
+```
+
+### Excluded features for browser
+
+* actions, because we don't support uploading & copying assets in the browser version for now. Needs browser-adaptation
+* registering custom templates with Node API, no browser alternative way for now, all templates are inlined. At some point we can ditch this bundler plugin to replace readFileSync calls to templates, and use the browser fs shim instead.
+* cleanPlatform / cleanAllPlatforms, we expect you to have your own cleanup for output dirs from platforms for now, see `playground/index.js` --> `cleanPlatformOutputDirs` function for an example. We can look into re-enabling these utils though, but needs patching..
+* json5 support, removed it for now until we find a way to use it in browser
 
 ## Example
 [Take a look at some of our examples](examples/)
@@ -219,7 +296,6 @@ $ style-dictionary build
 ```
 
 Take a look at the documentation for the example code.
-
 
 ## Design Tokens
 

@@ -1,7 +1,4 @@
 {
-  "parserOptions": {
-    "ecmaVersion": 6
-  },
   "plugins": ["jest"],
   "env": {
     "node": true,

@@ -1,6 +1,6 @@
 {
-  "name": "style-dictionary",
-  "version": "3.1.1",
+  "name": "browser-style-dictionary",
+  "version": "3.1.1-browser.0",
   "description": "Style once, use everywhere. A build system for creating cross-platform styles.",
   "keywords": [
     "style dictionary",
@@ -19,8 +19,8 @@
     "react native",
     "style guide"
   ],
-  "main": "index.js",
-  "types": "types/index.d.ts",
+  "main": "browser.js",
+  "types": "types/browser.d.ts",
   "bin": {
     "style-dictionary": "./bin/style-dictionary"
   },
@@ -32,6 +32,8 @@
     "lib",
     "examples",
     "index.js",
+    "browser.js",
+    "format-helpers.esm.js",
     "LICENSE",
     "NOTICE",
     "types"
@@ -45,7 +47,8 @@
     "serve-docs": "docsify serve docs -p 3000 -P 12345",
     "install-cli": "npm install -g $(npm pack)",
     "release": "git add . && standard-version -a",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "prepublishOnly": "node ./prepublish.js"
   },
   "standard-version": {
     "scripts": {
@@ -132,6 +135,8 @@
     "@babel/preset-env": "^7.16.11",
     "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^16.0.0",
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-json": "^4.1.0",
     "babel-jest": "^27.4.6",
     "babel-preset-env": "^1.7.0",
     "docsify": "^4.12.2",
@@ -147,6 +152,7 @@
     "less": "^4.1.2",
     "lint-staged": "^12.3.1",
     "node-sass": "^7.0.1",
+    "rollup": "^2.60.1",
     "standard-version": "^9.3.2",
     "stylus": "^0.56.0",
     "tsd": "^0.19.1",

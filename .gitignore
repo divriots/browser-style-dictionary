@@ -41,6 +41,7 @@ yarn.lock
 
 # Native Builds
 build/
+format-helpers.esm.js
 
 # Android Specific Files
 .gradle/
