@@ -10,19 +10,24 @@
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/amzn/style-dictionary/Test?style=flat-square)](https://github.com/amzn/style-dictionary/actions/workflows/test.yml)
 [![downloads](https://img.shields.io/npm/dm/style-dictionary.svg?style=flat-square)](https://www.npmjs.com/package/style-dictionary)
 
+> This is a fork of style-dictionary, because it patches style-dictionary to work in the browser. See Browser section for more info.
+
 # Style Dictionary
+
 > *Style once, use everywhere.*
 
 A Style Dictionary uses design tokens to define styles once and use those styles on any platform or language. It provides a single place to create and edit your styles, and exports these tokens to all the places you need - iOS, Android, CSS, JS, HTML, sketch files, style documentation, etc. It is available as a CLI through npm, but can also be used like any normal node module if you want to extend its functionality.
 
 When you are managing user experiences, it can be quite challenging to keep styles consistent and synchronized across multiple development platforms and devices. At the same time, designers, developers, PMs and others must be able to have consistent and up-to-date style documentation to enable effective work and communication. Even then, mistakes inevitably happen and the design may not be implemented accurately. Style Dictionary solves this by automatically generating style definitions across all platforms from a single source - removing roadblocks, errors, and inefficiencies across your workflow.
 
-For detailed usage head to https://amzn.github.io/style-dictionary
+For detailed usage head to <https://amzn.github.io/style-dictionary>
 
 ## Watch the Demo on Youtube
+
 [![Watch the video](/docs/assets/fake_player.png)](http://youtu.be/1HREvonfqhY)
 
 ## Contents
+
 * [Installation](#installation)
 * [Usage](#usage)
 * [Example](#example)
@@ -32,30 +37,42 @@ For detailed usage head to https://amzn.github.io/style-dictionary
 * [Contributing](#contributing)
 * [License](#license)
 
-
 ## Installation
+
 *Note that you must have node (and npm) installed.*
 
 If you want to use the CLI, you can install it globally via npm:
+
 ```bash
-$ npm install -g style-dictionary
+npm install -g style-dictionary
 ```
 
 Or you can install it like a normal npm dependency. This is a build tool and you are most likely going to want to save it as a dev dependency:
+
 ```bash
-$ npm install -D style-dictionary
+npm install -D style-dictionary
 ```
 
 If you want to install it with yarn:
+
 ```bash
-$ yarn add style-dictionary --dev
+yarn add style-dictionary --dev
+```
+
+If you want to install patch that can be used in the browser (see Browser section for more info):
+
+```bash
+npm install browser-style-dictionary
 ```
 
 ## Usage
+
 ### CLI
+
 ```bash
-$ style-dictionary build
+style-dictionary build
 ```
+
 Call this in the root directory of your project. The only thing needed is a `config.json` file. There are also arguments:
 
 | Flag | Short Flag | Description |
@@ -66,7 +83,9 @@ Call this in the root directory of your project. The only thing needed is a `con
 | --version | -v | Display the version |
 
 ### Node
+
 You can also use the style dictionary build system in node if you want to [extend](#extending) the functionality or use it in another build system like Grunt or Gulp.
+
 ```javascript
 const StyleDictionary = require('style-dictionary').extend('config.json');
 
@@ -74,6 +93,7 @@ StyleDictionary.buildAllPlatforms();
 ```
 
 The `.extend()` method is an overloaded method that can also take an object with the configuration in the same format as a config.json file.
+
 ```javascript
 const StyleDictionary = require('style-dictionary').extend({
   source: ['tokens/**/*.json'],
@@ -93,12 +113,66 @@ const StyleDictionary = require('style-dictionary').extend({
 StyleDictionary.buildAllPlatforms();
 ```
 
+## Browser
+
+This fork of style-dictionary is made to work in the browser. There's essentially three things for that to be possible
+
+* Patch style-dictionary to exclude things that only work in Node (like `chalk`), sync calls to `fs` (browser-alternative is async only), etc. this is already done for you in this fork.
+
+Do yourself:
+
+* Run Browserify from your entrypoint CommonJS file that will be transformed and ran in the browser, this is needed to replace Node exclusives with browser-compatible alternatives, like `fs`, `path`, `process`, etc. see example below in Playground section.
+* Bundler plugin to replace calls to `fs.readFileSync(__dirname + '/templates/...')` with the inlined content of those template files. There's an example for Rollup in the playground directory of this repository.
+
+> Note: `browserify-fs` doesn't support sync calls (IndexedDB, which is what is used as a NodeJS fs browser replacement, is async after all), and it's based on a rather old version of NodeJS, so a few methods are not supported atm.
+> Using `glob` is possible, but only async calls. Make sure to pass the virtual FS to glob calls e.g. `glob('**/*', { fs })`.
+
+### Playground
+
+For reference, checkout the `playground` directory of this fork, it shows how you can run style-dictionary in the browser by doing those 2 final steps.
+
+For this playground we use:
+
+* webpack, to bundle Microsoft's monaco-editor, as they have an official webpack-plugin for it
+* a small patch on `browserify-fs` to create unique instances of IndexedDB to allow multiple playgrounds in a single browser and some file-tree utilities so users can interact with the virtual filesystem.
+
+Look into the playground `index.js` for the full example for the playground, but in short:
+
+```js
+// patched style-dictionary
+const StyleDictionary = require("browser-style-dictionary"); 
+const path = require('path');
+let myStyleDictionary;
+const configPath = path.resolve("sd.config.json");
+
+async function runStyleDictionary() {
+  console.log("Running style-dictionary...");
+  // your implementation to clean up output files first
+  // use 'fs' which is the virtual filesystem style-dictionary uses as well
+  await cleanPlatformOutputDirs();
+  myStyleDictionary = await StyleDictionary.extend(configPath);
+  await myStyleDictionary.buildAllPlatforms();
+}
+
+(async function () { 
+  // rerun this whenever config or input files change
+  await runStyleDictionary();
+})();
+```
+
+### Excluded features for browser
+
+* actions, because we don't support uploading & copying assets in the browser version for now. Needs browser-adaptation
+* registering custom templates with Node API, no browser alternative way for now, all templates are inlined. At some point we can ditch this bundler plugin to replace readFileSync calls to templates, and use the browser fs shim instead.
+* cleanPlatform / cleanAllPlatforms, we expect you to have your own cleanup for output dirs from platforms for now, see `playground/index.js` --> `cleanPlatformOutputDirs` function for an example. We can look into re-enabling these utils though, but needs patching..
+
 ## Example
+
 [Take a look at some of our examples](examples/)
 
 A style dictionary is a collection of design tokens, key/value pairs that describe stylistic attributes like colors, sizes, icons, motion, etc. A style dictionary defines these design tokens in JSON or Javascript files, and can also include static assets like images and fonts. Here is a basic example of what the package structure can look like:
 
-```
+```text
 ├── config.json
 ├── tokens/
 │   ├── size/
@@ -112,6 +186,7 @@ A style dictionary is a collection of design tokens, key/value pairs that descri
 ```
 
 ### config.json
+
 This tells the style dictionary build system how and what to build. The default file path is `config.json` or `config.js` in the root of the project, but you can name it whatever you want by passing in the `--config` flag to the [CLI](https://amzn.github.io/style-dictionary/#/using_the_cli).
 
 ```json
@@ -152,7 +227,7 @@ This tells the style dictionary build system how and what to build. The default 
 | platform.file.options | Object (optional) | A set of extra options associated with the file. |
 | platform.file.options.showFileHeader | Boolean | If the generated file should have a "Do not edit + Timestamp" header (where the format supports it). By default is "true". |
 
-### Design Tokens
+### Design Tokens example
 
 ```json
 {
@@ -192,31 +267,29 @@ float const SizeFontLarge = 24.00f;
 float const SizeFontBase = 16.00f;
 ```
 
-
 ## Quick Start
 
 The style dictionary framework comes with some example code to get you stared. Install the node module globally, create a directory and `cd` into it.
 
-```
-$ npm i -g style-dictionary
-$ mkdir MyStyleDictionary
-$ cd MyStyleDictionary
+```sh
+npm i -g style-dictionary
+mkdir MyStyleDictionary
+cd MyStyleDictionary
 ```
 
 Now run:
 
-```
-$ style-dictionary init basic
+```sh
+style-dictionary init basic
 ```
 
 This command will copy over the example files found in [example](examples/) in this repo. Now you have an example project set up. You can make changes to the style dictionary and rebuild the project by running:
 
-```
-$ style-dictionary build
+```sh
+style-dictionary build
 ```
 
 Take a look at the documentation for the example code.
-
 
 ## Design Tokens
 
@@ -226,7 +299,7 @@ A design token is an attribute to describe something visually. It is atomic (it 
 
 While not exactly necessary, we feel this classification structure of design tokens makes the most sense semantically. Design tokens can be organized into a hierarchical tree structure with the top level, category, defining the primitive nature of the token. For example, we have the color category and every token underneath is always a color. As you proceed down the tree to type, item, sub-item, and state, you get more specific about what that color is. Is it a background color, a text color, or a border color? What kind of text color is it? You get the point. Now you can structure your token json files like simple objects:
 
-```
+```json
 {
   "size": {
     "font": {
@@ -247,7 +320,7 @@ Also, the CTI structure provides a good mechanism to target transforms for speci
 
 You can also add a _comment_ to a design token:
 
-```
+```json
 {
   "size": {
     "font": {
@@ -265,7 +338,6 @@ You can also add a _comment_ to a design token:
 ```
 
 The comment  will appear in the output files, where relevant or the output format supports comments.
-
 
 ## Extending
 
@@ -299,7 +371,6 @@ The mascot for Style Dictionary is ["Pascal"](https://github.com/amzn/style-dict
 ## Contributing
 
 Please help make this framework better. For more information take a look at [CONTRIBUTING.md](CONTRIBUTING.md)
-
 
 ## License
 
