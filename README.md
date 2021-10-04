@@ -10,6 +10,8 @@
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/amzn/style-dictionary/Test?style=flat-square)](https://github.com/amzn/style-dictionary/actions/workflows/test.yml)
 [![downloads](https://img.shields.io/npm/dm/style-dictionary.svg?style=flat-square)](https://www.npmjs.com/package/style-dictionary)
 
+> This is a fork of style-dictionary, because it patches style-dictionary to work in the browser. See Browser section for more info.
+
 # Style Dictionary
 > *Style once, use everywhere.*
 
@@ -49,6 +51,12 @@ $ npm install -D style-dictionary
 If you want to install it with yarn:
 ```bash
 $ yarn add style-dictionary --dev
+```
+
+If you want to install patch that can be used in the browser (see Browser section for more info):
+
+```bash
+$ npm install browser-style-dictionary
 ```
 
 ## Usage
@@ -92,6 +100,55 @@ const StyleDictionary = require('style-dictionary').extend({
 
 StyleDictionary.buildAllPlatforms();
 ```
+
+## Browser
+
+This fork of style-dictionary is made to work in the browser. There's essentially three things for that to be possible
+
+* Patch style-dictionary to exclude things that only work in Node (e.g. `process.on('exit')`), sync calls to `fs` (browser-alternative is async only), etc. this is already done for you in this fork.
+
+Do yourself:
+
+* Run Browserify from your entrypoint CommonJS file that will be transformed and ran in the browser, this is needed to replace Node exclusives with browser-compatible alternatives, like `fs`, `path`, `process`, etc. see example below in Playground section.
+* Bundler plugin to replace calls to `fs.readFileSync(__dirname + '/templates/...')` with the inlined content of those template files. There's an example for Rollup in the [playground repository](https://github.com/divriots/style-dictionary-playground).
+
+> Note: `browserify-fs` doesn't support sync calls (IndexedDB, which is what is used as a NodeJS fs browser replacement, is async after all), and it's based on a rather old version of NodeJS, so a few methods are not supported atm.
+> Using `glob` is possible, but only async calls. Make sure to pass the virtual FS to glob calls e.g. `glob('**/*', { fs })`.
+
+### Playground
+
+For reference, checkout the [playground repository](https://github.com/divriots/style-dictionary-playground), it shows how you can run style-dictionary in the browser by doing those 2 final steps.
+
+Look into the playground for a full example, but in short:
+
+```js
+// patched style-dictionary
+const StyleDictionary = require("browser-style-dictionary"); 
+const path = require('path');
+let myStyleDictionary;
+const configPath = path.resolve("sd.config.json");
+
+async function runStyleDictionary() {
+  console.log("Running style-dictionary...");
+  // your implementation to clean up output files first
+  // use 'fs' which is the virtual filesystem style-dictionary uses as well
+  await cleanPlatformOutputDirs();
+  myStyleDictionary = await StyleDictionary.extend(configPath);
+  await myStyleDictionary.buildAllPlatforms();
+}
+
+(async function () { 
+  // rerun this whenever config or input files change
+  await runStyleDictionary();
+})();
+```
+
+### Excluded features for browser
+
+* actions, because we don't support uploading & copying assets in the browser version for now. Needs browser-adaptation
+* registering custom templates with Node API, no browser alternative way for now, all templates are inlined. At some point we can ditch this bundler plugin to replace readFileSync calls to templates, and use the browser fs shim instead.
+* cleanPlatform / cleanAllPlatforms, we expect you to have your own cleanup for output dirs from platforms for now, see `playground/index.js` --> `cleanPlatformOutputDirs` function for an example. We can look into re-enabling these utils though, but needs patching..
+* json5 support, removed it for now until we find a way to use it in browser
 
 ## Example
 [Take a look at some of our examples](examples/)
@@ -216,7 +273,6 @@ $ style-dictionary build
 ```
 
 Take a look at the documentation for the example code.
-
 
 ## Design Tokens
 
