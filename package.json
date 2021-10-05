@@ -1,5 +1,5 @@
 {
-  "name": "style-dictionary",
+  "name": "browser-style-dictionary",
   "version": "3.0.2",
   "description": "Style once, use everywhere. A build system for creating cross-platform styles.",
   "keywords": [
@@ -19,7 +19,7 @@
     "react native",
     "style guide"
   ],
-  "main": "index.js",
+  "main": "browser.js",
   "types": "types/index.d.ts",
   "bin": {
     "style-dictionary": "./bin/style-dictionary"
@@ -32,6 +32,7 @@
     "lib",
     "examples",
     "index.js",
+    "browser.js",
     "LICENSE",
     "NOTICE",
     "types"
