@@ -105,15 +105,23 @@ StyleDictionary.buildAllPlatforms();
 
 This fork of style-dictionary is made to work in the browser. There's essentially three things for that to be possible
 
-* Patch style-dictionary to exclude things that only work in Node (e.g. `process.on('exit')`), sync calls to `fs` (browser-alternative is async only), etc. this is already done for you in this fork.
+* Patch style-dictionary to exclude things that only work in Node (e.g. `process.on('exit')`), sync calls to `fs` (browser-alternative might be async only), etc. this is already done for you in this fork, and you can import the browser entrypoint: 
+
+```js
+import StyleDictionary from 'browser-style-dictionary/browser.js';
+```
 
 Do yourself:
 
-* Run Browserify from your entrypoint CommonJS file that will be transformed and ran in the browser, this is needed to replace Node exclusives with browser-compatible alternatives, like `fs`, `path`, `process`, etc. see example below in Playground section.
-* Bundler plugin to replace calls to `fs.readFileSync(__dirname + '/templates/...')` with the inlined content of those template files. There's an example for Rollup in the [playground repository](https://github.com/divriots/style-dictionary-playground).
+* Run Browserify or your own bundler of choice to make this runnable in the browser. It is needed to replace Node exclusives with browser-compatible alternatives, like `fs`, `path`, `process`, etc.
+* Bundler plugin to replace calls to `fs.readFileSync(__dirname + '/templates/...')` with the inlined content of those template files
 
-> Note: `browserify-fs` doesn't support sync calls (IndexedDB, which is what is used as a NodeJS fs browser replacement, is async after all), and it's based on a rather old version of NodeJS, so a few methods are not supported atm.
-> Using `glob` is possible, but only async calls. Make sure to pass the virtual FS to glob calls e.g. `glob('**/*', { fs })`.
+For both, there's an example for Rollup in the [playground repository](https://github.com/divriots/style-dictionary-playground/blob/main/rollup.config.js).
+
+If you're looking for a browserify utility to do the same thing, checkout the playground's old [browserify branch](https://github.com/divriots/style-dictionary-playground/tree/browserify). However, we recommend reusing the bundler you bundle the rest of your application with, rather than creating multiple separate bundles.
+
+> Note: `browserify-fs` doesn't support sync calls (IndexedDB, which is what is used as a NodeJS fs browser replacement, is async after all), and it's based on a rather old version of NodeJS, so a few methods are not supported atm. Recommended shim is `memfs` which supports sync calls and is way more up to date, but keep in mind it stores files in memory rather than IndexedDB, so persistence works differently.
+> Using `glob` is possible. Make sure to pass the virtual FS to glob calls e.g. `glob('**/*', { fs: virtualFS })`.
 
 ### Playground
 
