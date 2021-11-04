@@ -1,6 +1,6 @@
 {
   "name": "browser-style-dictionary",
-  "version": "3.0.2-browser.2",
+  "version": "3.0.2-browser.3",
   "description": "Style once, use everywhere. A build system for creating cross-platform styles.",
   "keywords": [
     "style dictionary",
@@ -20,7 +20,7 @@
     "style guide"
   ],
   "main": "browser.js",
-  "types": "types/index.d.ts",
+  "types": "types/browser.d.ts",
   "bin": {
     "style-dictionary": "./bin/style-dictionary"
   },
