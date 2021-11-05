@@ -105,23 +105,28 @@ StyleDictionary.buildAllPlatforms();
 
 This fork of style-dictionary is made to work in the browser. There's essentially three things for that to be possible
 
-* Patch style-dictionary to exclude things that only work in Node (e.g. `process.on('exit')`), sync calls to `fs` (browser-alternative might be async only), etc. this is already done for you in this fork, and you can import the browser entrypoint: 
+### Done already
+
+* Patch style-dictionary to exclude things that only work in Node (e.g. `process.on('exit')`), calls to `fs-extra` etc.
+
+* Prepublish step to replace calls to `fs.readFileSync(__dirname + '/templates/...')` with the inlined content of those template files
+
+You can import the browser entrypoint:
 
 ```js
 import StyleDictionary from 'browser-style-dictionary/browser.js';
 ```
 
-Do yourself:
+### Do yourself
 
-* Run Browserify or your own bundler of choice to make this runnable in the browser. It is needed to replace Node exclusives with browser-compatible alternatives, like `fs`, `path`, `process`, etc.
-* Bundler plugin to replace calls to `fs.readFileSync(__dirname + '/templates/...')` with the inlined content of those template files
+* Run Browserify or your own bundler of choice (e.g. [Rollup](https://rollupjs.org/)) to make this runnable in the browser. It is needed to replace Node exclusives with browser-compatible alternatives, like `fs`, `path`, `process`, etc.
 
-For both, there's an example for Rollup in the [playground repository](https://github.com/divriots/style-dictionary-playground/blob/main/rollup.config.js).
+There's an example for Rollup in the [playground repository](https://github.com/divriots/style-dictionary-playground/blob/main/rollup.config.js).
 
 If you're looking for a browserify utility to do the same thing, checkout the playground's old [browserify branch](https://github.com/divriots/style-dictionary-playground/tree/browserify). However, we recommend reusing the bundler you bundle the rest of your application with, rather than creating multiple separate bundles.
 
-> Note: `browserify-fs` doesn't support sync calls (IndexedDB, which is what is used as a NodeJS fs browser replacement, is async after all), and it's based on a rather old version of NodeJS, so a few methods are not supported atm. Recommended shim is `memfs` which supports sync calls and is way more up to date, but keep in mind it stores files in memory rather than IndexedDB, so persistence works differently.
-> Using `glob` is possible. Make sure to pass the virtual FS to glob calls e.g. `glob('**/*', { fs: virtualFS })`.
+> Note: your file-system shim needs to support synchronous calls, we recommend [memfs](https://www.npmjs.com/package/memfs).
+> Using `glob` is possible too. Make sure to pass the virtual FS to glob calls e.g. `glob('**/*', { fs: virtualFS })`.
 
 ### Playground
 
@@ -131,24 +136,17 @@ Look into the playground for a full example, but in short:
 
 ```js
 // patched style-dictionary
-const StyleDictionary = require("browser-style-dictionary"); 
+const StyleDictionary = require("browser-style-dictionary/browser.js"); 
 const path = require('path');
 let myStyleDictionary;
 const configPath = path.resolve("sd.config.json");
 
-async function runStyleDictionary() {
+function runStyleDictionary() {
   console.log("Running style-dictionary...");
-  // your implementation to clean up output files first
-  // use 'fs' which is the virtual filesystem style-dictionary uses as well
-  await cleanPlatformOutputDirs();
-  myStyleDictionary = await StyleDictionary.extend(configPath);
-  await myStyleDictionary.buildAllPlatforms();
+  myStyleDictionary = StyleDictionary.extend(configPath);
+  myStyleDictionary.buildAllPlatforms();
 }
-
-(async function () { 
-  // rerun this whenever config or input files change
-  await runStyleDictionary();
-})();
+runStyleDictionary();
 ```
 
 ### Excluded features for browser
