@@ -125,6 +125,12 @@ There's an example for Rollup in the [playground repository](https://github.com/
 
 If you're looking for a browserify utility to do the same thing, checkout the playground's old [browserify branch](https://github.com/divriots/style-dictionary-playground/tree/browserify). However, we recommend reusing the bundler you bundle the rest of your application with, rather than creating multiple separate bundles.
 
+For supporting JSON5, add this to your app:
+
+```html
+<script src="https://unpkg.com/json5@^2.0.0/dist/index.min.js"></script>
+```
+
 > Note: your file-system shim needs to support synchronous calls, we recommend [memfs](https://www.npmjs.com/package/memfs).
 > Using `glob` is possible too. Make sure to pass the virtual FS to glob calls e.g. `glob('**/*', { fs: virtualFS })`.
 
