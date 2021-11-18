@@ -268,7 +268,7 @@ declare namespace StyleDictionary {
      * });
      * ```
      */
-    extend(config: string | Config): Core;
+    extend(config: string | Config): Promise<Core>;
   }
 }
 
