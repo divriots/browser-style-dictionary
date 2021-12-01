@@ -117,6 +117,12 @@ You can import the browser entrypoint:
 import StyleDictionary from 'browser-style-dictionary/browser.js';
 ```
 
+or if you want a prebundled ESM version of the format helpers:
+
+```js
+import StyleDictionary from 'browser-style-dictionary/format-helpers.esm.js';
+```
+
 ### Do yourself
 
 * Run Browserify or your own bundler of choice (e.g. [Rollup](https://rollupjs.org/)) to make this runnable in the browser. It is needed to replace Node exclusives with browser-compatible alternatives, like `fs`, `path`, `process`, etc.
