@@ -1,6 +1,6 @@
 {
   "name": "browser-style-dictionary",
-  "version": "3.0.2-browser.6",
+  "version": "3.0.2-browser.7",
   "description": "Style once, use everywhere. A build system for creating cross-platform styles.",
   "keywords": [
     "style dictionary",
@@ -33,6 +33,7 @@
     "examples",
     "index.js",
     "browser.js",
+    "format-helpers.esm.js",
     "LICENSE",
     "NOTICE",
     "types"
@@ -131,6 +132,8 @@
     "@babel/preset-env": "^7.10.2",
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-json": "^4.1.0",
     "babel-jest": "^26.0.1",
     "babel-preset-env": "^1.7.0",
     "docsify": "^4.12.1",
@@ -146,6 +149,7 @@
     "less": "^3.11.2",
     "lint-staged": "^10.2.7",
     "node-sass": "^6.0.1",
+    "rollup": "^2.60.1",
     "standard-version": "^9.0.0",
     "stylus": "^0.54.8",
     "tsd": "^0.15.1",
