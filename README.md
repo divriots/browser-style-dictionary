@@ -1,3 +1,23 @@
+<p align="center">
+  <img src="https://raw.github.com/divriots/browser-style-dictionary/main/docs/assets/logo-browser.svg" height="200px">
+</p>
+<br/>
+<p align="center">
+  <a href="https://npmjs.com/package/browser-style-dictionary"><img src="https://img.shields.io/npm/v/browser-style-dictionary.svg" alt="npm package"></a>
+  <a href="https://nodejs.org/en/about/releases/"><img src="https://img.shields.io/node/v/browser-style-dictionary.svg" alt="node compatibility"></a>
+  <br/>
+</p>
+<p align="center">
+  <a href="https://divRIOTS.com">Brought to you by<br/></a>
+  <a href="https://divRIOTS.com#gh-light-mode-only">
+    <img width="150" height="40" src="https://divRIOTS.com/divriots.svg" alt="‹div›RIOTS" />
+  </a>
+  <a href="https://divRIOTS.com#gh-dark-mode-only">
+    <img width="150" height="40" src="https://divRIOTS.com/divriots-dark.svg" alt="‹div›RIOTS" />
+  </a>
+</p>
+<br/>
+
 <pre>
 <a href="https://amzn.github.io/style-dictionary/#/version_3">What's new in Style Dictionary 3.0!</a>
 </pre>
