@@ -25,7 +25,6 @@ var StyleDictionary = {
   transformGroup: require('./lib/common/transformGroups'),
   format: require('./lib/common/formats'),
 
-  // Commented out because our playground does not support uploading & copying assets for now
   action: require('./lib/common/actions'),
   formatHelpers: require('./lib/common/formatHelpers'),
   filter: {}, // we need to initialise the object, since we don't have built-in filters
@@ -46,7 +45,6 @@ var StyleDictionary = {
   buildPlatform: require('./lib/buildPlatform'),
   buildAllPlatforms: require('./lib/buildAllPlatforms'),
 
-  // Commented out below, we have our own cleanup for output dirs from platforms for now
   cleanPlatform: require('./lib/cleanPlatform'),
   cleanAllPlatforms: require('./lib/cleanAllPlatforms'),
 
