@@ -68,6 +68,7 @@ declare namespace StyleDictionary {
     transform: Record<string, Transform>;
     transformGroup: Record<string, TransformGroup>;
     format: Record<string, Format>;
+    action: Record<string, Action>;
     filter: Record<string, Filter>;
     fileHeader: Record<string, FileHeader>;
     parsers: Parser[];
@@ -244,6 +245,27 @@ declare namespace StyleDictionary {
      * ```
      */
     buildAllPlatforms(): this;
+
+    /**
+     * Takes a platform and performs all transforms to
+     * the tokens object (non-mutative) then
+     * cleans all the files and performs the undo method of any actions.
+     *
+     * @param {String} platform
+     */
+    cleanPlatform(platform: string): this;
+
+    /**
+     * Does the reverse of `.buildAllPlatforms` by
+     * performing a clean on each platform. This removes all the files
+     * defined in the platform and calls the undo method on any actions.
+     *
+     * @example
+     * ```js
+     * StyleDictionary.cleanAllPlatforms();
+     * ```
+     */
+    cleanAllPlatforms(): this;
 
     /**
      * Creates a Style Dictionary
