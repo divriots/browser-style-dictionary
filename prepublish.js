@@ -18,12 +18,17 @@ allJSFiles.forEach((file) => {
   const filePath = path.resolve(file);
   const fileData = fs.readFileSync(filePath, "utf-8");
   const replaced = fileData.replace(
-    /fs.readFileSync\(\s*__dirname\s*\+\s*'\/templates\/(.*)'\)/g,
+    /fs\.readFileSync\(\s*__dirname\s*\+\s*'\/templates\/(.*)'\)/g,
     (match, $1) => {
       const tpl = path.join("./lib/common/templates", $1);
       return JSON.stringify(fs.readFileSync(tpl, "utf8"));
     }
-  );
+  ).replace(
+    /fs\.readFileSync\(\s*path\.resolve\(__dirname\s*\,\s*`\.\.\/\.\.\/types\/(.*)`\)\s*,\s*{\s*encoding:\s*'UTF-8'\s*}\s*\);/g,
+    (match, $1) => {
+      const tpl = path.join("./types", $1);
+      return JSON.stringify(fs.readFileSync(tpl, "utf8"));
+    });
   if (replaced !== fileData) {
     fs.writeFileSync(filePath, replaced, "utf-8");
   }
